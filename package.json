@@ -1,0 +1,25 @@
+{
+  "name": "employee-management",
+  "version": "1.0.0",
+  "description": "employee management sytem",
+  "main": "tracker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lundyc0917/Employee-Management.git"
+  },
+  "author": "Cam Lundy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lundyc0917/Employee-Management/issues"
+  },
+  "homepage": "https://github.com/lundyc0917/Employee-Management#readme",
+  "dependencies":{
+    "console.table": "^0.10.0",
+    "inquirer": "^7.0.1",
+    "mysql": "^2.17.1",
+    "promise-mysql": "^4.1.1"
+  }
+}
