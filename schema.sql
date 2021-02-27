@@ -14,12 +14,6 @@ CREATE TABLE employee (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE department (
-    id INTEGER NOT NULL AUTO_INCREMENT,
-    departName VARCHAR(30),
-    PRIMARY KEY (id)
-);
-
 CREATE TABLE roles (
     id INTEGER NOT NULL AUTO_INCREMENT,
     title VARCHAR(30),
@@ -27,3 +21,10 @@ CREATE TABLE roles (
     departId INTEGER NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE department (
+    id INTEGER NOT NULL AUTO_INCREMENT,
+    departName VARCHAR(30),
+    PRIMARY KEY (id)
+);
+
