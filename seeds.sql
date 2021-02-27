@@ -11,7 +11,7 @@ VALUES ("Vice President of Sales",150000.00,1),
 ("Purchasing Manager",115000.00,3),
 ("Inventory Associate",50000.00,3);
 
-INSERT INTO employee (firstName, lastName, roleId, managerId)
+INSERT INTO employee (firstName, lastName, rolesId, managerId)
 VALUES ("Joe","Schmo",1,null),
 ("Bob","Taylor",2,1),
 ("John", "Schmidt",3,null),
