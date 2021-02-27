@@ -16,9 +16,9 @@ var dbConnection = mysql.createConnection({
 dbConnection.query = util.promisify(dbConnection.query);
 
 
-dbConnection.connect(function(err){
-    if(err) throw err;
-    console.log ("Connectedt as "+ dbConnection.threadID + "\n");
+dbConnection.connect(function(error){
+    if(error) throw error;
+    console.log ("Connected as "+ dbConnection.threadID + "\n");
 
     initProgram();
 
@@ -62,12 +62,11 @@ var initProgram = async () => {
             case "View All Departments": viewDepartments();
             break;
 
-            case "Exit": connection.end();
-
-            default: connection.end();
+            default: dbConnection.end();
         }
-    } catch (err) {
-        console.log(err);
+    } catch (error) {
+        console.log(error);
+        initProgram();
     }
 }
 
@@ -84,13 +83,49 @@ var addDepartment = async () => {
 }
 
 var viewEmployees = async () => {
-
+    try {
+        let employeesQuery = 'SELECT * FROM employee';
+        dbConnection.query(employeesQuery , function (error, result){
+            if (error) throw error;
+            let employeeArray=[];
+            result.forEach(employee  => employeeArray.push(employee));
+            console.table(employeeArray);
+            initProgram();
+        });
+    } catch (error) {
+        console.log (error);
+        initProgram();
+    }
 }
 
 var viewRoles = async () => {
-
+    try {
+        let rolesQuery = 'SELECT * FROM roles';
+        dbConnection.query(rolesQuery, function (error, result){
+            if (error) throw error;
+            let rolesArray=[];
+            result.forEach(roles  => rolesArray.push(roles));
+            console.table(rolesArray);
+            initProgram();
+        });
+    } catch (error) {
+        console.log (error);
+        initProgram();
+    }
 }
 
 var viewDepartments = async () => {
-
+    try {
+        let deptQuery = 'SELECT * FROM department';
+        dbConnection.query(deptQuery, function (error, result){
+            if (error) throw error;
+            let deptArray=[];
+            result.forEach(department  => deptArray.push(department));
+            console.table(deptArray);
+            initProgram();
+        });
+    } catch (error) {
+        console.log (error);
+        initProgram();
+    }
 }
