@@ -71,7 +71,57 @@ var initProgram = async () => {
 }
 
 var addEmployee = async () => {
+    try {
+        let employeeRoles = await dbConnection.query("SELECT * FROM roles");
+        let rolesArray = employeeRoles.map((roles)=> {
+            return { 
+                name: roles.title, 
+                value: roles.id
+            }
+        });
 
+        let department = await dbConnection.query("SELECT * FROM department");
+        let deptArray = department.map((department) =>{
+            return {name: department.departName, value: department.id}
+        });
+        let response = await inquirer.prompt([
+            { 
+                name: "firstName", 
+                type: "input", 
+                message: "Enter First Name of Employee"
+            },
+            { 
+                name: "lastName", 
+                type: "input", 
+                message: "Enter Last Name of Employee"
+            },
+            { 
+                name: "rolesId",
+                type: "list",
+                choices: rolesArray,
+                message: "Choose employee's Role"
+            },
+            { 
+                name: "departmentId",
+                type: "list",
+                choices: deptArray,
+                message: "Choose Employee's Department"
+            }
+        ])
+
+    var employeeData = dbConnection.query("INSERT INTO employee SET ?", {
+        firstName: response.firstName,
+        lastName: response.lastName,
+        rolesId: response.rolesId,
+        managerId: response.managerId
+    });
+
+    console.log(`${response.firstName} ${response.lastName} added successfully.\n`);
+    initProgram();
+    } catch (err) {
+        console.log(err);
+        initProgram();
+    }
 }
 
 var addRole = async () => {
@@ -84,7 +134,7 @@ var addDepartment = async () => {
 
 var viewEmployees = async () => {
     try {
-        let employeesQuery = 'SELECT * FROM employee';
+        let employeesQuery = "SELECT * FROM employee";
         dbConnection.query(employeesQuery , function (error, result){
             if (error) throw error;
             let employeeArray=[];
@@ -100,7 +150,7 @@ var viewEmployees = async () => {
 
 var viewRoles = async () => {
     try {
-        let rolesQuery = 'SELECT * FROM roles';
+        let rolesQuery = "SELECT * FROM roles";
         dbConnection.query(rolesQuery, function (error, result){
             if (error) throw error;
             let rolesArray=[];
@@ -116,7 +166,7 @@ var viewRoles = async () => {
 
 var viewDepartments = async () => {
     try {
-        let deptQuery = 'SELECT * FROM department';
+        let deptQuery = "SELECT * FROM department";
         dbConnection.query(deptQuery, function (error, result){
             if (error) throw error;
             let deptArray=[];
