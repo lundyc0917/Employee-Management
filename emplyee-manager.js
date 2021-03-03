@@ -4,6 +4,8 @@ const inquirer = require('inquirer');
 const util = require('util');
 const consoleTable = require('console.table');
 
+
+// create connection with mySQL database
 var dbConnection = mysql.createConnection({
     host: "localhost",
     port: 3306,
@@ -39,6 +41,7 @@ var initProgram = async () => {
                     "View All Employees",
                     "View All Roles",
                     "View All Departments",
+                    "Update Employee's Role",
                     "Exit"
                 ],
         });
@@ -62,6 +65,9 @@ var initProgram = async () => {
             case "View All Departments": viewDepartments();
             break;
 
+            case "Update Employee's Role": updateRole();
+            break;
+
             default: dbConnection.end();
         }
     } catch (error) {
@@ -70,9 +76,11 @@ var initProgram = async () => {
     }
 }
 
+// function to add employee
 var addEmployee = async () => {
     try {
-
+        // pull list items from roles to select from
+        // use await to allow information to collect before running the array
         let employeeRoles = await dbConnection.query("SELECT * FROM roles");
         let rolesArray = employeeRoles.map((roles)=> {
             return { 
@@ -80,7 +88,8 @@ var addEmployee = async () => {
                 value: roles.id
             }
         });
-
+        // pull list itmes from departments to select from
+        // use await to allow information to collect before running the array
         let department = await dbConnection.query("SELECT * FROM department");
         let deptArray = department.map((department) =>{
             return {
@@ -88,7 +97,8 @@ var addEmployee = async () => {
                 value: department.id
             }
         });
-
+        // pull list items from employee list to be able to select manager
+        // use await to allow information to collect before running the array
         let managers = await dbConnection.query("SELECT * FROM employee");
         let managerArray = managers.map((employee) =>{
             return {
@@ -96,7 +106,7 @@ var addEmployee = async () => {
                 value: employee.id
             }
         });
-
+        // prompts for input and responses
         let response = await inquirer.prompt([
             { 
                 name: "firstName", 
@@ -125,16 +135,17 @@ var addEmployee = async () => {
                 type: "list",
                 choices: managerArray,
                 message: "Choose Employee's Manager"
+                // TODO: Allow for Null value to be selected
             }
         ])
-
-        var employeeData = dbConnection.query("INSERT INTO employee SET ?", {
+        // write the data to mySQL
+        let employeeData = dbConnection.query("INSERT INTO employee SET ?", {
             firstName: response.firstName,
             lastName: response.lastName,
             rolesId: response.rolesId,
             managerId: response.managerId
         });
-
+        // conosle log success or error
         console.log(`\nSuccess!!! \n ${response.firstName} ${response.lastName} has been added!\n`);
         initProgram();
     } catch (err) {
@@ -145,6 +156,8 @@ var addEmployee = async () => {
 
 var addRole = async () => {
     try {
+        // pull list itmes from departments to select from
+        // use await to allow information to collect before running the array
         let depart = await dbConnection.query("SELECT * FROM department");
         let departArray = depart.map((departID)=>{
             return{
@@ -152,8 +165,8 @@ var addRole = async () => {
                 value: departID.id
             }
         });
-
-        var response = await inquirer.prompt ([
+        // prompts for input and responses
+        let response = await inquirer.prompt ([
             {
                 name: "title",
                 type: "input",
@@ -171,13 +184,13 @@ var addRole = async () => {
                 message: "Select Department"
             }
         ])
-
-        var rolesData = dbConnection.query("INSERT INTO roles SET ?", {
+        // write data to mySQL database
+        let rolesData = dbConnection.query("INSERT INTO roles SET ?", {
             title: response.title,
             salary: response.salary,
             departId: response.departId
         });
-    
+        // conosle log success or error
         console.log(`\nSuccess!!! \n ${response.title} has been added!\n`);
         initProgram();
     } catch (err) {
@@ -188,17 +201,19 @@ var addRole = async () => {
 
 var addDepartment = async () => {
     try{
-        var response = await inquirer.prompt([
+        // prompts for input and responses
+        let response = await inquirer.prompt([
             {
                 name: "departName",
                 type: "input",
                 message: "Enter Department Name"
             }
         ]);
-        var departData = dbConnection.query("INSERT INTO department SET ?", {
+        // write data to mySQL database
+        let departData = dbConnection.query("INSERT INTO department SET ?", {
             departName: response.departName
         });
-
+        // conosle log success or error
         console.log(`\nSuccess!!! \n ${response.departName} has been added!\n`);
         initProgram();
     } catch (err) {
@@ -206,7 +221,7 @@ var addDepartment = async () => {
         initProgram();
     }
 }
-
+// view employee table
 var viewEmployees = async () => {
     try {
         let employeesQuery = "SELECT * FROM employee";
@@ -222,7 +237,7 @@ var viewEmployees = async () => {
         initProgram();
     }
 }
-
+//view roles table
 var viewRoles = async () => {
     try {
         let rolesQuery = "SELECT * FROM roles";
@@ -238,19 +253,64 @@ var viewRoles = async () => {
         initProgram();
     }
 }
-
+//view department table
 var viewDepartments = async () => {
     try {
-        let deptQuery = "SELECT * FROM department";
-        dbConnection.query(deptQuery, function (error, result){
+        let departQuery = "SELECT * FROM department";
+        dbConnection.query(departQuery, function (error, result){
             if (error) throw error;
-            let deptArray=[];
-            result.forEach(department  => deptArray.push(department));
-            console.table(deptArray);
+            let departArray=[];
+            result.forEach(department  => departArray.push(department));
+            console.table(departArray);
             initProgram();
         });
     } catch (error) {
         console.log (error);
         initProgram();
+    }
+}
+
+var updateRole = async () => {
+    try {
+        let employeeList = await dbConnection.query("SELECT * FROM employee");
+        let employeeArray = employeeList.map((employee) =>{
+            return {
+                name: employee.firstName + " " + employee.lastName, 
+                value: employee.id
+            }
+        });
+        let employeeSelect = await inquirer.prompt([
+            {
+                name: "employee",
+                type: "list",
+                choices: employeeArray,
+                message: "Select Employee"
+            }
+        ]);
+
+        let employeeRoles = await dbConnection.query("SELECT * FROM roles");
+        let rolesArray = employeeRoles.map((roles)=> {
+            return { 
+                name: roles.title, 
+                value: roles.id
+            }
+        });
+        let roleSelect = await inquirer.prompt([
+            {
+                name: "roles",
+                type: "list",
+                choices: rolesArray,
+                message: "Select New Role"
+            }
+        ]);
+
+        let updateRole = dbConnection.query("UPDATE employee SET ? WHERE ?", [{rolesId: roleSelect.roles}, {id: employeeSelect.employee}]);
+        
+        console.log(`\nSuccess!!! \n Employee's role has been updated!\n`);
+        initProgram();
+
+    } catch (err) {
+    console.log(err);
+    initProgram();
     }
 }
