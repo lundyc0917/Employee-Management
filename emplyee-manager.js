@@ -72,6 +72,7 @@ var initProgram = async () => {
 
 var addEmployee = async () => {
     try {
+
         let employeeRoles = await dbConnection.query("SELECT * FROM roles");
         let rolesArray = employeeRoles.map((roles)=> {
             return { 
@@ -82,8 +83,20 @@ var addEmployee = async () => {
 
         let department = await dbConnection.query("SELECT * FROM department");
         let deptArray = department.map((department) =>{
-            return {name: department.departName, value: department.id}
+            return {
+                name: department.departName, 
+                value: department.id
+            }
         });
+
+        let managers = await dbConnection.query("SELECT * FROM employee");
+        let managerArray = managers.map((employee) =>{
+            return {
+                name: employee.firstName + " " + employee.lastName, 
+                value: employee.id
+            }
+        });
+
         let response = await inquirer.prompt([
             { 
                 name: "firstName", 
@@ -99,25 +112,31 @@ var addEmployee = async () => {
                 name: "rolesId",
                 type: "list",
                 choices: rolesArray,
-                message: "Choose employee's Role"
+                message: "Choose Employee's Role"
             },
             { 
                 name: "departmentId",
                 type: "list",
                 choices: deptArray,
                 message: "Choose Employee's Department"
+            },
+            { 
+                name: "managerId",
+                type: "list",
+                choices: managerArray,
+                message: "Choose Employee's Manager"
             }
         ])
 
-    var employeeData = dbConnection.query("INSERT INTO employee SET ?", {
-        firstName: response.firstName,
-        lastName: response.lastName,
-        rolesId: response.rolesId,
-        managerId: response.managerId
-    });
+        var employeeData = dbConnection.query("INSERT INTO employee SET ?", {
+            firstName: response.firstName,
+            lastName: response.lastName,
+            rolesId: response.rolesId,
+            managerId: response.managerId
+        });
 
-    console.log(`${response.firstName} ${response.lastName} added successfully.\n`);
-    initProgram();
+        console.log(`\nSuccess!!! \n ${response.firstName} ${response.lastName} has been added!\n`);
+        initProgram();
     } catch (err) {
         console.log(err);
         initProgram();
@@ -125,11 +144,67 @@ var addEmployee = async () => {
 }
 
 var addRole = async () => {
+    try {
+        let depart = await dbConnection.query("SELECT * FROM department");
+        let departArray = depart.map((departID)=>{
+            return{
+                name: departID.departName,
+                value: departID.id
+            }
+        });
 
+        var response = await inquirer.prompt ([
+            {
+                name: "title",
+                type: "input",
+                message: "Enter Title of Role"
+            },
+            {
+                name: "salary",
+                type: "input",
+                message: "Enter Salary for Role"
+            },
+            {
+                name: "departId",
+                type: "list",
+                choices: departArray,
+                message: "Select Department"
+            }
+        ])
+
+        var rolesData = dbConnection.query("INSERT INTO roles SET ?", {
+            title: response.title,
+            salary: response.salary,
+            departId: response.departId
+        });
+    
+        console.log(`\nSuccess!!! \n ${response.title} has been added!\n`);
+        initProgram();
+    } catch (err) {
+        console.log(err);
+        initProgram();
+    }
 }
 
 var addDepartment = async () => {
+    try{
+        var response = await inquirer.prompt([
+            {
+                name: "departName",
+                type: "input",
+                message: "Enter Department Name"
+            }
+        ]);
+        var departData = dbConnection.query("INSERT INTO department SET ?", {
+            departName: response.departName
+        });
 
+        console.log(`\nSuccess!!! \n ${response.departName} has been added!\n`);
+        initProgram();
+    } catch (err) {
+        console.log(err);
+        initProgram();
+    }
 }
 
 var viewEmployees = async () => {
