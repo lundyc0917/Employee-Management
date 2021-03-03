@@ -224,7 +224,8 @@ var addDepartment = async () => {
 // view employee table
 var viewEmployees = async () => {
     try {
-        let employeesQuery = "SELECT * FROM employee";
+        let employeesQuery = "SELECT * FROM employee"; 
+        // employeeQuery += "FROM roles INNER JOIN employee ON ("
         dbConnection.query(employeesQuery , function (error, result){
             if (error) throw error;
             let employeeArray=[];
